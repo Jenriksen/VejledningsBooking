@@ -38,22 +38,22 @@ namespace Vejledningsbooking.Domain
 
         protected override void EnsureValidState()
         {
-            var valid =
-                Id != null &&
-                (State switch
-                {
-                    TimeslotState.Active =>
-                        // Insert datetime logic.
-                        TimeslotStartDateTime < DateTime.Now();
-                        Title != null
-                        && Text != null
-                        && Price?.Amount > 0
-                    _ => true
-                });
+            // var valid =
+            //     Id != null &&
+            //     (State switch
+                // {
+                //     TimeslotState.Active =>
+                //         // Insert datetime logic.
+                //         TimeslotStartDateTime < DateTime.Now();
+                //         Title != null
+                //         && Text != null
+                //         && Price?.Amount > 0
+                //     _ => true
+                // });
 
-            if (!valid)
-                throw new InvalidEntityStateException(
-                    this, $"Post-checks failed in state {State}");
+            // if (!valid)
+            //     throw new InvalidEntityStateException(
+            //         this, $"Post-checks failed in state {State}");
 
             throw new NotImplementedException();
         }
@@ -63,8 +63,9 @@ namespace Vejledningsbooking.Domain
             switch (@event)
             {
                 case Events.TimeslotCreated e:
-                    Id = e.TimeslotId;
-                    CalendarId = e.CalendarId;
+                    Id = new TimeslotId(e.TimeslotId);
+                    CalendarId = new CalendarId(e.CalendarId);
+                    // Timeslotstart and end will be "newed" up as well once implemented.
                     TimeslotStartDateTime = e.TimeslotStartDateTime;
                     TimeslotEndDateTime = e.TimeslotEndDateTime;
                     break;
