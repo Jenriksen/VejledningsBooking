@@ -71,6 +71,15 @@ namespace Vejledningsbooking.Domain
             public DateTime BookingEndDateTime { get; set; }
 
         }
+
+        public class BookingAddedToTimeslot
+        {
+            public Guid BookingId { get; set; }
+            public Guid TimeslotId { get; set; }
+            public DateTime BookingStartDateTime { get; set; }
+            public DateTime BookingEndDateTime { get; set; }
+
+        }
         
         public class BookingFromTimeSlotRemoved
         {

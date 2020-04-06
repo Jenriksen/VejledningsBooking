@@ -4,12 +4,12 @@ namespace Vejledningsbooking.Domain
 {
     public class TimeslotId : IEquatable<TimeslotId>
     {
-        private Guid Value { get; }
+        public Guid Value { get; private set; }
 
         public TimeslotId(Guid value)
         {
-            if (value == default)
-                throw new ArgumentNullException(nameof(value), "Timeslot Id cannot be empty");
+            // if (value == default)
+            //    throw new ArgumentNullException(nameof(value), value + " cannot be empty ");
 
             Value = value;
         }

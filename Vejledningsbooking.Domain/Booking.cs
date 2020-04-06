@@ -36,6 +36,8 @@ namespace Vejledningsbooking.Domain
             });
         protected override void EnsureValidState()
         {
+
+            //TODO: KBR - Hvordan skal en EnsureValidState sættes sammen?
             throw new NotImplementedException();
         }
 

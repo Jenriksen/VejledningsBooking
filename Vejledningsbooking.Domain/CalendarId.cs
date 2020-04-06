@@ -4,7 +4,7 @@ namespace Vejledningsbooking.Domain
 {
     public class CalendarId : IEquatable<CalendarId>
     {
-        private Guid Value { get; }
+        public Guid Value { get; private set; }
 
         public CalendarId(Guid value)
         {

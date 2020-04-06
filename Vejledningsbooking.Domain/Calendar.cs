@@ -35,7 +35,7 @@ namespace Vejledningsbooking.Domain
         
         protected override void EnsureValidState()
         {
-            //TODO Implement validation for overlapping time slots
+            
             foreach (var timeslot in Timeslots)
             {
                 foreach (var timeslotCheck in Timeslots)

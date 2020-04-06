@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Vejledningsbooking.Framework;
 
 namespace Vejledningsbooking.Domain
@@ -9,6 +10,8 @@ namespace Vejledningsbooking.Domain
         public CalendarId CalendarId { get; private set; }
         public TimeRange TimeRange { get; private set; }
         public TimeslotState State { get; private set; }
+
+        public List<Booking> Bookings { get; set; }
 
         public Timeslot(TimeslotId id, CalendarId calendarId, DateTime timeslotStartDateTime, DateTime timeslotEndDateTime) =>
             Apply(new Events.TimeslotCreated
@@ -68,7 +71,8 @@ namespace Vejledningsbooking.Domain
                         && TimeRange.End > DateTime.Now;
                     break;
                 case TimeslotState.Expired:
-                    valid
+                    valid = valid && TimeRange.End < DateTime.Now;
+                    break;
 
             }
         }
@@ -83,6 +87,7 @@ namespace Vejledningsbooking.Domain
                     // Timeslotstart and end will be "newed" up as well once implemented.
                     TimeRange = new TimeRange(e.TimeslotStartDateTime, e.TimeslotEndDateTime);
                     State = TimeslotState.Active;
+                    Bookings = new List<Booking>();
                     break;
                 case Events.TimeslotStartDateUpdated e:
                     TimeRange = TimeRange.UpdateStart(e.TimeslotStartDateTime, TimeRange);
