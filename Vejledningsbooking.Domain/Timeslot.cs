@@ -3,23 +3,20 @@ using Vejledningsbooking.Framework;
 
 namespace Vejledningsbooking.Domain
 {
-    public class TimeSlot : Entity<TimeslotId>
+    public class Timeslot : Entity<TimeslotId>
     {
         public TimeslotId Id { get; private set; }
         public CalendarId CalendarId { get; private set; }
-
-        public DateTime TimeslotStartDateTime { get; private set; }
-        public DateTime TimeslotEndDateTime { get; private set; }
+        public TimeRange TimeRange { get; private set; }
         public TimeslotState State { get; private set; }
-        public bool Expired { get; private set; } = false;
 
-        public TimeSlot(TimeslotId id, CalendarId calendarId, DateTime TimeslotStartDateTime, DateTime TimeslotEndDateTime) =>
+        public Timeslot(TimeslotId id, CalendarId calendarId, DateTime timeslotStartDateTime, DateTime timeslotEndDateTime) =>
             Apply(new Events.TimeslotCreated
             {
                 TimeslotId = id,
-                CalendarId = CalendarId,
-                TimeslotEndDateTime = TimeslotEndDateTime,
-                TimeslotStartDateTime = TimeslotStartDateTime
+                CalendarId = calendarId,
+                TimeslotStartDateTime = timeslotStartDateTime,
+                TimeslotEndDateTime = timeslotEndDateTime
             });
 
         public void UpdateTimeslotStartDate(TimeslotId id, DateTime datetime) =>
@@ -38,24 +35,42 @@ namespace Vejledningsbooking.Domain
 
         protected override void EnsureValidState()
         {
-            // var valid =
-            //     Id != null &&
-            //     (State switch
-                // {
-                //     TimeslotState.Active =>
-                //         // Insert datetime logic.
-                //         TimeslotStartDateTime < DateTime.Now();
-                //         Title != null
-                //         && Text != null
-                //         && Price?.Amount > 0
-                //     _ => true
-                // });
+            // TODO: KBR - Hvordan skal denne strikkes sammen? lige pt. ser det ud til at vi manuelt skal tjekke om et timeslot-End eller -start er i fortiden.
+            
 
-            // if (!valid)
-            //     throw new InvalidEntityStateException(
-            //         this, $"Post-checks failed in state {State}");
+            //var valid =
+            //    Id != null &&
+            //    (State switch
+            //    {
+            //        TimeslotState.Active =>
+            //             // Insert datetime logic.
+            //             TimeslotStartDateTime < DateTime.Now();
+            //         Title != null
+            //        && Text != null
+            //        && Price?.Amount > 0
 
-            throw new NotImplementedException();
+            //    _ => true
+            //    });
+
+            //if (!valid)
+            //    throw new InvalidEntityStateException(
+            //        this, $"Post-checks failed in state {State}");
+
+            //throw new NotImplementedException();
+
+            bool valid = Id != null;
+
+            switch (State)
+            {
+                case TimeslotState.Active:
+                    valid = valid
+                        && CalendarId != null
+                        && TimeRange.End > DateTime.Now;
+                    break;
+                case TimeslotState.Expired:
+                    valid
+
+            }
         }
 
         protected override void When(object @event)
@@ -64,16 +79,16 @@ namespace Vejledningsbooking.Domain
             {
                 case Events.TimeslotCreated e:
                     Id = new TimeslotId(e.TimeslotId);
-                    CalendarId = new CalendarId(e.CalendarId);
+                    CalendarId = new CalendarId(e.CalendarId); 
                     // Timeslotstart and end will be "newed" up as well once implemented.
-                    TimeslotStartDateTime = e.TimeslotStartDateTime;
-                    TimeslotEndDateTime = e.TimeslotEndDateTime;
+                    TimeRange = new TimeRange(e.TimeslotStartDateTime, e.TimeslotEndDateTime);
+                    State = TimeslotState.Active;
                     break;
                 case Events.TimeslotStartDateUpdated e:
-                    TimeslotStartDateTime = e.TimeslotStartDateTime;
+                    TimeRange = TimeRange.UpdateStart(e.TimeslotStartDateTime, TimeRange);
                     break;
                 case Events.TimeslotEndDateUpdated e:
-                    TimeslotEndDateTime = e.TimeslotEndDateTime;
+                    TimeRange = TimeRange.UpdateEnd(e.TimeslotEndDateTime, TimeRange);
                     break;
             }
         }

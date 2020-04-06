@@ -27,6 +27,13 @@ namespace Vejledningsbooking.Domain
             public Guid CalendarId { get; set; }
         }
 
+        public class TimeslotAddedToCalendar
+        {
+            public Guid CalendarId { get; set; }
+            public DateTime TimeslotStartDateTime { get; set; }
+            public DateTime TimeslotEndDateTime { get; set; }
+        }
+
         public class TimeslotCreated
         {
             public Guid TimeslotId { get; set; }

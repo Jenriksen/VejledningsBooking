@@ -7,9 +7,8 @@ namespace Vejledningsbooking.Domain
     {
         public BookingId Id { get; private set; }
         public TimeslotId TimeslotId { get; private set; }
-
-        public DateTime BookingStartDateTime { get; private set; } //refactor to value objects
-        public DateTime BookingEndDateTime { get; private set; }
+        public TimeRange TimeRange { get; private set; }
+        
 
         public bool Expired { get; private set; } = false;
 
@@ -47,14 +46,13 @@ namespace Vejledningsbooking.Domain
                 case Events.BookingOnTimeslotCreated e:
                     Id = new BookingId(e.BookingId);
                     TimeslotId = new TimeslotId(e.TimeslotId);
-                    BookingStartDateTime = e.BookingStartDateTime;
-                    BookingEndDateTime = e.BookingEndDateTime;
+                    TimeRange = new TimeRange(e.BookingStartDateTime, e.BookingEndDateTime);
                     break;
                 case Events.BookingStartTimeUpdated e:
-                    BookingStartDateTime = e.BookingStartDateTime;
+                    TimeRange = TimeRange.UpdateStart(e.BookingStartDateTime, TimeRange);
                     break;
                 case Events.BookingEndTimeUpdated e:
-                    BookingEndDateTime = e.BookingEndDateTime;
+                    TimeRange = TimeRange.UpdateEnd(e.BookingEndDateTime, TimeRange);
                     break;
             }
         }
