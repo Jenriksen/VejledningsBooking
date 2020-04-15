@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using Vejledningsbooking.Framework;
 
 namespace Vejledningsbooking.Domain
@@ -28,6 +30,7 @@ namespace Vejledningsbooking.Domain
         public void AddTimeSlotToCalendar(Timeslot timeslot) =>
             Apply(new Events.TimeslotAddedToCalendar
             {
+                Timeslot = timeslot,
                 CalendarId = this.Id,
                 TimeslotStartDateTime = timeslot.TimeRange.Start,
                 TimeslotEndDateTime = timeslot.TimeRange.End,
@@ -35,23 +38,41 @@ namespace Vejledningsbooking.Domain
         
         protected override void EnsureValidState()
         {
+            Timeslots.ToList().ForEach(a => Timeslots.Any(b => b != a && Overlapped(a, b)));
             
-            foreach (var timeslot in Timeslots)
-            {
-                foreach (var timeslotCheck in Timeslots)
-                {
-                    if (!timeslot.Id.Equals(timeslotCheck.Id)) //do not compare against self
-                    {
-                        bool overlap = timeslot.TimeRange.Start < timeslotCheck.TimeRange.End &&
-                                       timeslotCheck.TimeRange.Start < timeslot.TimeRange.End;
-                        if (overlap)
-                        {
-                            throw new InvalidEntityStateException(this, "Timeslots may not overlap");
-                        }
-                    }
+            //foreach (var timeslot in Timeslots)
+            //{
+            //    foreach (var timeslotCheck in Timeslots)
+            //    {
+            //        if (!timeslot.Id.Equals(timeslotCheck.Id)) //do not compare against self
+            //        {
+            //            bool overlap = timeslot.TimeRange.Start < timeslotCheck.TimeRange.End &&
+            //                           timeslotCheck.TimeRange.Start < timeslot.TimeRange.End;
+            //            if (overlap)
+            //            {
+            //                throw new InvalidEntityStateException(this, "Timeslots may not overlap");
+            //            }
+            //        }
                     
+            //    }
+            //}
+        }
+
+
+
+        protected bool Overlapped(Timeslot a, Timeslot b)
+        {
+            if (!timeslot.Id.Equals(timeslotCheck.Id)) //do not compare against self
+            {
+                bool overlap = timeslot.TimeRange.Start < timeslotCheck.TimeRange.End &&
+                               timeslotCheck.TimeRange.Start < timeslot.TimeRange.End;
+                if (overlap)
+                {
+                    throw new InvalidEntityStateException(this, "Timeslots may not overlap");
                 }
             }
+
+            return false;
         }
 
         protected override void When(object @event)
@@ -66,7 +87,7 @@ namespace Vejledningsbooking.Domain
                     Description = new CalendarDescription(e.Description);
                     break;
                 case Events.TimeslotAddedToCalendar e:
-                    Timeslots.Add(new Timeslot(new TimeslotId(new Guid()), new CalendarId((e.CalendarId)), e.TimeslotStartDateTime, e.TimeslotEndDateTime));
+                    Timeslots.Add(e.Timeslot);
                     break;
             }
         }

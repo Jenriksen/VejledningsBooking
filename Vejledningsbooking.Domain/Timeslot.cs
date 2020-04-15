@@ -104,4 +104,18 @@ namespace Vejledningsbooking.Domain
             Expired
         }
     }
+
+
+    public class CalernderStub : Calendar
+    {
+        public CalernderStub(CalendarId id) : base(id)
+        {
+        }
+
+        public new bool Overlapped(Timeslot a, Timeslot b)
+        {
+            return base.Overlapped(a, b);
+
+        }
+    }
 }
